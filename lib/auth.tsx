@@ -34,15 +34,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         if (!user?.email) return;
+        const email = user.email;
 
         const ensureMemberInOrgChart = async () => {
             try {
-                const existing = await getMemberByEmail(user.email!);
+                const existing = await getMemberByEmail(email);
                 if (existing) return;
 
                 await createMember({
-                    name: user.displayName || user.email.split('@')[0],
-                    email: user.email,
+                    name: user.displayName || email.split('@')[0],
+                    email,
                     photo_url: user.photoURL || undefined,
                     role: 'Team Member',
                     manager_id: null,

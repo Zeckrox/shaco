@@ -9,6 +9,7 @@ import {
     GoogleAuthProvider
 } from 'firebase/auth';
 import { auth } from './firebase';
+import { getMemberByEmail, createMember } from './api';
 
 interface AuthContextType {
     user: User | null;
@@ -30,6 +31,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         return () => unsubscribe();
     }, []);
+
+    useEffect(() => {
+        if (!user?.email) return;
+
+        const ensureMemberInOrgChart = async () => {
+            try {
+                const existing = await getMemberByEmail(user.email!);
+                if (existing) return;
+
+                await createMember({
+                    name: user.displayName || user.email.split('@')[0],
+                    email: user.email,
+                    photo_url: user.photoURL || undefined,
+                    role: 'Team Member',
+                    manager_id: null,
+                });
+            } catch (err) {
+                console.error('Error auto-adding user to org chart:', err);
+            }
+        };
+
+        ensureMemberInOrgChart();
+    }, [user?.uid, user?.email, user?.displayName, user?.photoURL]);
 
     const loginWithGoogle = async () => {
         const provider = new GoogleAuthProvider();

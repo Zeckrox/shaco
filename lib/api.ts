@@ -6,7 +6,8 @@ import {
     deleteDoc, 
     doc, 
     query, 
-    orderBy 
+    orderBy,
+    where
 } from 'firebase/firestore';
 import { db } from './firebase';
 
@@ -20,6 +21,7 @@ export interface Member {
     birthday?: string;
     education?: string;
     work_history?: string;
+    description?: string;
     subordinates?: Member[];
 }
 
@@ -32,6 +34,17 @@ export const getMembers = async (): Promise<Member[]> => {
         id: doc.id,
         ...doc.data()
     })) as Member[];
+};
+
+export const getMemberByEmail = async (email: string): Promise<Member | null> => {
+    const q = query(
+        membersCollection,
+        where('email', '==', email)
+    );
+    const snapshot = await getDocs(q);
+    if (snapshot.empty) return null;
+    const doc = snapshot.docs[0];
+    return { id: doc.id, ...doc.data() } as Member;
 };
 
 export const getTree = async (): Promise<Member[]> => {

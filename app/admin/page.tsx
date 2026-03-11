@@ -156,7 +156,7 @@ export default function AdminPage() {
                         {isAdmin && (
                             <button 
                                 onClick={() => {
-                                    setEditingMember({ name: '', role: '', email: '', manager_id: null });
+                                    setEditingMember({ name: '', role: '', email: '', manager_id: null, description: '' });
                                     setIsAdding(true);
                                 }}
                                 className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-blue-600 shadow-xl shadow-blue-500/20 text-white hover:bg-blue-500 transition-all text-sm font-bold"
@@ -207,7 +207,7 @@ export default function AdminPage() {
                                             </div>
                                         </div>
 
-                                        <div className={`flex items-center gap-2 transition-opacity ${canEdit ? 'opacity-0 group-hover:opacity-100' : 'opacity-0'}`}>
+                                        <div className={`flex items-center gap-2 ${canEdit ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                                             <button 
                                                 onClick={() => {
                                                     setEditingMember(member);
@@ -349,6 +349,16 @@ export default function AdminPage() {
                                             </div>
 
                                             <div className="space-y-2">
+                                                <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Description (Markdown)</label>
+                                                <textarea 
+                                                    className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all min-h-[80px] resize-none"
+                                                    value={editingMember.description || ''}
+                                                    onChange={(e) => setEditingMember({...editingMember, description: e.target.value})}
+                                                    placeholder="e.g. **Bio** or *highlights* in Markdown"
+                                                />
+                                            </div>
+
+                                            <div className="space-y-2">
                                                 <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Birthday</label>
                                                 <input 
                                                     className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all"
@@ -359,7 +369,7 @@ export default function AdminPage() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Education</label>
+                                                <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Education (Markdown)</label>
                                                 <input 
                                                     className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all"
                                                     value={editingMember.education || ''}
@@ -369,7 +379,7 @@ export default function AdminPage() {
                                             </div>
 
                                             <div className="space-y-2">
-                                                <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Work History</label>
+                                                <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Work History (Markdown)</label>
                                                 <textarea 
                                                     className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all min-h-[100px] resize-none"
                                                     value={editingMember.work_history || ''}

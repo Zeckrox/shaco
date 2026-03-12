@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { getTree, Member } from '@/lib/api';
+import { getTree, getAdminEmails, Member } from '@/lib/api';
 import dynamic from 'next/dynamic';
 
 const OrgChart = dynamic(() => import('@/components/OrgChart'), {
@@ -17,15 +17,20 @@ import ProfileModal from '@/components/ProfileModal';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
-import { Settings, Users, Loader2, LogOut, LogIn } from 'lucide-react';
+import { Settings, Users, Loader2, LogOut, LogIn, User } from 'lucide-react';
 
 export default function Home() {
     const { user, logout } = useAuth();
-    // ...
     const [tree, setTree] = useState<Member[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [selectedMember, setSelectedMember] = useState<Member | null>(null);
+    const [userIsAdmin, setUserIsAdmin] = useState(false);
+
+    useEffect(() => {
+        if (!user?.email) { setUserIsAdmin(false); return; }
+        getAdminEmails().then(emails => setUserIsAdmin(emails.includes(user.email!)));
+    }, [user?.uid]);
 
     const fetchData = async () => {
         try {
@@ -71,8 +76,11 @@ export default function Home() {
                                 href="/admin"
                                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 hover:border-blue-500/50 hover:bg-slate-800 transition-all text-sm font-medium"
                             >
-                                <Settings className="w-4 h-4 text-slate-400" />
-                                <span>Admin Panel</span>
+                                {userIsAdmin
+                                    ? <Settings className="w-4 h-4 text-slate-400" />
+                                    : <User className="w-4 h-4 text-slate-400" />
+                                }
+                                <span>{userIsAdmin ? 'Admin Panel' : 'My Profile'}</span>
                             </Link>
                             <button 
                                 onClick={logout}

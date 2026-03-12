@@ -1,10 +1,12 @@
 import { 
     collection, 
     getDocs, 
+    getDoc,
     addDoc, 
     updateDoc, 
     deleteDoc, 
     doc, 
+    setDoc,
     query, 
     orderBy,
     where
@@ -26,6 +28,25 @@ export interface Member {
 }
 
 const membersCollection = collection(db, 'members');
+const adminsCollection = collection(db, 'admins');
+
+export const getAdminEmails = async (): Promise<string[]> => {
+    const snapshot = await getDocs(adminsCollection);
+    return snapshot.docs.map((d) => d.id);
+};
+
+export const isAdmin = async (email: string): Promise<boolean> => {
+    const d = await getDoc(doc(db, 'admins', email));
+    return d.exists();
+};
+
+export const addAdmin = async (email: string): Promise<void> => {
+    await setDoc(doc(db, 'admins', email), {});
+};
+
+export const removeAdmin = async (email: string): Promise<void> => {
+    await deleteDoc(doc(db, 'admins', email));
+};
 
 export const getMembers = async (): Promise<Member[]> => {
     const q = query(membersCollection, orderBy('name'));

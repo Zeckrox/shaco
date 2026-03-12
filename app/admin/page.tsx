@@ -4,13 +4,13 @@ import React, { useEffect, useState } from 'react';
 import { getMembers, createMember, updateMember, deleteMember, getAdminEmails, addAdmin, removeAdmin, Member } from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { 
-    ArrowLeft, 
-    Plus, 
-    Trash2, 
-    Edit2, 
-    UserPlus, 
-    Save, 
+import {
+    ArrowLeft,
+    Plus,
+    Trash2,
+    Edit2,
+    UserPlus,
+    Save,
     X,
     LayoutGrid,
     ChevronDown,
@@ -90,7 +90,7 @@ export default function AdminPage() {
         const email = newAdminEmail.trim().toLowerCase();
         if (!email || adminActionLoading) return;
         if (adminEmails.includes(email)) {
-            alert('That user is already an admin.');
+            alert('Ese usuario ya es admin.');
             return;
         }
         try {
@@ -100,7 +100,7 @@ export default function AdminPage() {
             await fetchAdmins();
         } catch (err: any) {
             console.error('Error adding admin:', err);
-            alert(err?.message || 'Failed to add admin. Check Firestore rules.');
+            alert(err?.message || 'Error al agregar admin. Revisa las reglas de Firestore.');
         } finally {
             setAdminActionLoading(false);
         }
@@ -108,17 +108,17 @@ export default function AdminPage() {
 
     const handleRemoveAdmin = async (email: string) => {
         if (adminEmails.length <= 1) {
-            alert('You must keep at least one admin.');
+            alert('Debes mantener al menos un admin.');
             return;
         }
-        if (!confirm(`Remove admin role from ${email}?`)) return;
+        if (!confirm(`¿Quitar rol de admin a ${email}?`)) return;
         try {
             setAdminActionLoading(true);
             await removeAdmin(email);
             await fetchAdmins();
         } catch (err: any) {
             console.error('Error removing admin:', err);
-            alert(err?.message || 'Failed to remove admin.');
+            alert(err?.message || 'Error al quitar admin.');
         } finally {
             setAdminActionLoading(false);
         }
@@ -139,17 +139,16 @@ export default function AdminPage() {
             fetchData();
         } catch (err) {
             console.error('Error saving member:', err);
-            alert('Error saving member. Check your permissions.');
+            alert('Error al guardar. Verifica tus permisos.');
         }
     };
 
     const handleDelete = async (id: string) => {
         if (!isAdmin) {
-            alert('Only admins can delete personnel.');
+            alert('Solo los admins pueden eliminar miembros.');
             return;
         }
-
-        if (confirm('Are you sure you want to remove this member?')) {
+        if (confirm('¿Eliminar este miembro?')) {
             try {
                 await deleteMember(id);
                 fetchData();
@@ -162,74 +161,72 @@ export default function AdminPage() {
     const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file || !editingMember) return;
-
         try {
             setUploading(true);
             const fileName = `${Date.now()}_${file.name}`;
             const { data, error } = await supabase.storage
                 .from('photos')
                 .upload(fileName, file);
-
             if (error) throw error;
-
             const { data: { publicUrl } } = supabase.storage
                 .from('photos')
                 .getPublicUrl(fileName);
-
             setEditingMember({ ...editingMember, photo_url: publicUrl });
         } catch (err: any) {
             console.error('Error uploading photo:', err);
-            alert(`Failed to upload photo: ${err.message || 'Unknown error'}. Check your Supabase Storage Policies.`);
+            alert(`Error al subir foto: ${err.message || 'Error desconocido'}.`);
         } finally {
             setUploading(false);
         }
     };
 
     return (
-        <main className="min-h-screen bg-slate-950 p-6 md:p-12 overflow-x-hidden">
+        <main className="min-h-screen bg-[#0d1117] p-6 md:p-10 overflow-x-hidden">
             <div className="max-w-6xl mx-auto">
-                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
-                    <div className="flex items-center gap-6">
-                        <Link 
+
+                {/* Header */}
+                <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
+                    <div className="flex items-center gap-5">
+                        <Link
                             href="/"
-                            className="p-3 rounded-full bg-slate-900 border border-slate-800 text-slate-400 hover:text-white hover:border-slate-700 transition-all"
+                            className="p-2.5 rounded-lg bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#e6edf3] hover:border-cyan-400/40 transition-all"
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </Link>
                         <div>
-                            <h1 className="text-3xl font-extrabold tracking-tight text-white mb-1">
-                                {isAdmin ? 'Management Console' : 'My Profile'}
+                            <h1 className="text-2xl font-bold text-[#e6edf3] mb-0.5">
+                                {isAdmin ? 'Panel de Gestión' : 'Mi Perfil'}
                             </h1>
-                            <p className="text-slate-500 font-medium pb-2">
-                                {isAdmin ? 'Control the organizational structure of Shaco Core.' : 'Manage your profile information.'}
+                            <p className="text-sm text-[#8b949e]">
+                                {isAdmin ? 'Administra la estructura organizacional de Shaco Core.' : 'Gestiona tu información de perfil.'}
                             </p>
-                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800">
-                                <span className={`w-1.5 h-1.5 rounded-full ${isAdmin ? 'bg-emerald-500' : 'bg-blue-500'}`} />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">
-                                    {loadingAdmins ? 'Checking role...' : isAdmin ? 'Admin' : 'Standard Access'}
+                            <div className="inline-flex items-center gap-2 mt-2 px-2.5 py-1 rounded-md bg-[#161b22] border border-[#30363d]">
+                                <span className={`w-1.5 h-1.5 rounded-full ${isAdmin ? 'bg-[#3fb950]' : 'bg-cyan-400'}`} />
+                                <span className="text-[10px] font-mono uppercase tracking-widest text-[#8b949e]">
+                                    {loadingAdmins ? 'verificando rol...' : isAdmin ? 'admin' : 'acceso estándar'}
                                 </span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                        <button 
+                    <div className="flex items-center gap-2">
+                        <button
                             onClick={logout}
-                            className="p-2.5 rounded-2xl bg-slate-900 border border-slate-800 text-slate-500 hover:text-red-400 transition-all shadow-sm"
-                            title="Sign Out"
+                            className="p-2.5 rounded-lg bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-[#f85149] hover:border-[#f85149]/40 transition-all"
+                            title="Cerrar sesión"
                         >
                             <LogOut className="w-5 h-5" />
                         </button>
                         {isAdmin && (
-                            <button 
+                            <button
                                 onClick={() => {
                                     setEditingMember({ name: '', role: '', email: '', manager_id: null, description: '' });
                                     setIsAdding(true);
                                 }}
-                                className="flex items-center gap-2 px-6 py-2.5 rounded-2xl bg-blue-600 shadow-xl shadow-blue-500/20 text-white hover:bg-blue-500 transition-all text-sm font-bold"
+                                className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-cyan-500/10 border border-cyan-400/30 text-cyan-400 hover:bg-cyan-500/20 hover:border-cyan-400/60 transition-all text-sm font-semibold glow-cyan-sm"
                             >
-                                <Plus className="w-5 h-5" />
-                                <span>Add Member</span>
+                                <Plus className="w-4 h-4" />
+                                <span>Agregar Miembro</span>
                             </button>
                         )}
                     </div>
@@ -238,19 +235,19 @@ export default function AdminPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Members List */}
                     <div className="lg:col-span-2 space-y-4">
-                        <div className="flex items-center gap-2 mb-4 px-2">
-                            <LayoutGrid className="w-4 h-4 text-slate-500" />
-                            <h2 className="text-xs uppercase tracking-[0.2em] font-black text-slate-500">Active Personnel</h2>
+                        <div className="flex items-center gap-2 mb-4 px-1">
+                            <LayoutGrid className="w-3.5 h-3.5 text-[#8b949e]" />
+                            <h2 className="text-[11px] font-mono uppercase tracking-widest text-[#8b949e]">// personal activo</h2>
                         </div>
 
                         {canManageAdmins && (
-                            <div className="mb-8 p-6 rounded-3xl bg-slate-900/80 border border-slate-800">
+                            <div className="mb-8 p-5 rounded-xl bg-[#161b22] border border-[#30363d]">
                                 <div className="flex items-center gap-2 mb-4">
-                                    <Shield className="w-4 h-4 text-emerald-500" />
-                                    <h3 className="text-xs uppercase tracking-[0.2em] font-black text-slate-400">Manage admins</h3>
+                                    <Shield className="w-3.5 h-3.5 text-[#3fb950]" />
+                                    <h3 className="text-[11px] font-mono uppercase tracking-widest text-[#8b949e]">// gestionar admins</h3>
                                 </div>
                                 {adminEmails.length === 0 ? (
-                                    <p className="text-sm text-slate-400 mb-4">No admins yet. Add yourself as the first admin to manage roles.</p>
+                                    <p className="text-sm text-[#8b949e] mb-4">Sin admins aún. Agrégate como el primer admin para gestionar roles.</p>
                                 ) : null}
                                 {adminEmails.length === 0 && user?.email ? (
                                     <button
@@ -263,117 +260,117 @@ export default function AdminPage() {
                                                 await addAdmin(user.email!);
                                                 await fetchAdmins();
                                             } catch (err: any) {
-                                                alert(err?.message || 'Failed to add admin.');
+                                                alert(err?.message || 'Error al agregar admin.');
                                             } finally {
                                                 setAdminActionLoading(false);
                                             }
                                         }}
-                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold disabled:opacity-50"
+                                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#3fb950]/10 border border-[#3fb950]/30 text-[#3fb950] hover:bg-[#3fb950]/20 text-sm font-semibold disabled:opacity-50 transition-all"
                                     >
                                         {adminActionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
-                                        <span>Add myself as first admin</span>
+                                        <span>Agregarme como primer admin</span>
                                     </button>
                                 ) : null}
                                 {adminEmails.length > 0 && (
-                                <ul className="space-y-2 mb-4">
-                                    {adminEmails.map((email) => (
-                                        <li key={email} className="flex items-center justify-between py-2 px-3 rounded-xl bg-slate-800/50 border border-slate-700/50">
-                                            <span className="text-sm font-medium text-slate-200 truncate">{email}</span>
-                                            <div className="flex items-center gap-2 shrink-0">
-                                                {email === user?.email && (
-                                                    <span className="text-[9px] font-bold uppercase text-emerald-400 px-2 py-0.5 rounded-md bg-emerald-500/10">You</span>
-                                                )}
-                                                <button
-                                                    type="button"
-                                                    disabled={adminActionLoading || (adminEmails.length === 1 && email === user?.email)}
-                                                    onClick={() => handleRemoveAdmin(email)}
-                                                    className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all disabled:opacity-50 disabled:pointer-events-none"
-                                                    title="Remove admin"
-                                                >
-                                                    <Trash2 className="w-3.5 h-3.5" />
-                                                </button>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
+                                    <ul className="space-y-2 mb-4">
+                                        {adminEmails.map((email) => (
+                                            <li key={email} className="flex items-center justify-between py-2 px-3 rounded-lg bg-[#21262d] border border-[#30363d]">
+                                                <span className="text-sm font-mono text-[#e6edf3] truncate">{email}</span>
+                                                <div className="flex items-center gap-2 shrink-0">
+                                                    {email === user?.email && (
+                                                        <span className="text-[9px] font-mono font-bold uppercase text-[#3fb950] px-2 py-0.5 rounded bg-[#3fb950]/10 border border-[#3fb950]/20">tú</span>
+                                                    )}
+                                                    <button
+                                                        type="button"
+                                                        disabled={adminActionLoading || (adminEmails.length === 1 && email === user?.email)}
+                                                        onClick={() => handleRemoveAdmin(email)}
+                                                        className="p-1.5 rounded-md bg-[#161b22] text-[#8b949e] hover:text-[#f85149] hover:bg-[#f85149]/10 transition-all disabled:opacity-50 disabled:pointer-events-none"
+                                                        title="Quitar admin"
+                                                    >
+                                                        <Trash2 className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 )}
                                 {adminEmails.length > 0 && (
-                                <form onSubmit={handleAddAdmin} className="flex flex-wrap gap-2">
-                                    <select
-                                        value={newAdminEmail}
-                                        onChange={(e) => setNewAdminEmail(e.target.value)}
-                                        className="flex-1 min-w-[180px] px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm focus:ring-2 focus:ring-emerald-500"
-                                    >
-                                        <option value="">Select member to make admin</option>
-                                        {members
-                                            .filter((m) => m.email && !adminEmails.includes(m.email))
-                                            .map((m) => (
-                                                <option key={m.id} value={m.email!}>{m.name} ({m.email})</option>
-                                            ))}
-                                    </select>
-                                    <button
-                                        type="submit"
-                                        disabled={!newAdminEmail.trim() || adminActionLoading}
-                                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold disabled:opacity-50 disabled:pointer-events-none transition-all"
-                                    >
-                                        {adminActionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
-                                        <span>Add admin</span>
-                                    </button>
-                                    {members.filter((m) => m.email && !adminEmails.includes(m.email)).length === 0 && members.length > 0 && (
-                                        <p className="text-xs text-slate-500 mt-2">All members with email are already admins.</p>
-                                    )}
-                                </form>
+                                    <form onSubmit={handleAddAdmin} className="flex flex-wrap gap-2">
+                                        <select
+                                            value={newAdminEmail}
+                                            onChange={(e) => setNewAdminEmail(e.target.value)}
+                                            className="flex-1 min-w-[180px] px-4 py-2 rounded-lg bg-[#21262d] border border-[#30363d] text-[#e6edf3] text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400/50"
+                                        >
+                                            <option value="">Seleccionar miembro como admin</option>
+                                            {members
+                                                .filter((m) => m.email && !adminEmails.includes(m.email))
+                                                .map((m) => (
+                                                    <option key={m.id} value={m.email!}>{m.name} ({m.email})</option>
+                                                ))}
+                                        </select>
+                                        <button
+                                            type="submit"
+                                            disabled={!newAdminEmail.trim() || adminActionLoading}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#3fb950]/10 border border-[#3fb950]/30 text-[#3fb950] hover:bg-[#3fb950]/20 text-sm font-semibold disabled:opacity-50 disabled:pointer-events-none transition-all"
+                                        >
+                                            {adminActionLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserCog className="w-4 h-4" />}
+                                            <span>Agregar admin</span>
+                                        </button>
+                                        {members.filter((m) => m.email && !adminEmails.includes(m.email)).length === 0 && members.length > 0 && (
+                                            <p className="text-xs font-mono text-[#8b949e] mt-2 w-full">// todos los miembros ya son admins.</p>
+                                        )}
+                                    </form>
                                 )}
                             </div>
                         )}
 
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                             {visibleMembers.map((member) => {
                                 const isSelf = user?.email === member.email;
                                 const canEdit = isAdmin || isSelf;
 
                                 return (
-                                    <motion.div 
+                                    <motion.div
                                         layout
                                         key={member.id}
-                                        className="flex items-center justify-between p-5 rounded-3xl bg-slate-900/50 border border-slate-800/50 backdrop-blur-sm hover:border-slate-700/80 transition-all group shadow-sm hover:shadow-xl hover:shadow-black/20"
+                                        className="flex items-center justify-between p-4 rounded-xl bg-[#161b22] border border-[#30363d] hover:border-cyan-400/30 transition-all group"
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 relative">
+                                            <div className="w-11 h-11 rounded-lg bg-[#21262d] border border-[#30363d] flex items-center justify-center text-[#8b949e] relative overflow-hidden">
                                                 {member.photo_url ? (
-                                                    <img src={member.photo_url} className="w-full h-full rounded-2xl object-cover" />
+                                                    <img src={member.photo_url} className="w-full h-full object-cover" />
                                                 ) : (
-                                                    <UserPlus className="w-6 h-6" />
+                                                    <UserPlus className="w-5 h-5" />
                                                 )}
                                                 {isSelf && (
-                                                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 border-2 border-slate-950 rounded-full" />
+                                                    <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-cyan-400 border-2 border-[#161b22] rounded-full" />
                                                 )}
                                             </div>
                                             <div>
                                                 <div className="flex items-center gap-2">
-                                                    <h3 className="font-bold text-white leading-tight">{member.name}</h3>
-                                                    {isSelf && <span className="text-[9px] font-black uppercase tracking-tighter text-blue-500 px-1.5 py-0.5 rounded-md bg-blue-500/10 border border-blue-500/20">You</span>}
+                                                    <h3 className="font-semibold text-[#e6edf3] leading-tight">{member.name}</h3>
+                                                    {isSelf && <span className="text-[9px] font-mono font-bold uppercase text-cyan-400 px-1.5 py-0.5 rounded bg-cyan-500/10 border border-cyan-400/20">tú</span>}
                                                 </div>
-                                                <p className="text-xs font-bold uppercase tracking-widest text-blue-400/80 mt-0.5">{member.role}</p>
+                                                <p className="text-[11px] font-mono text-[#8b949e] mt-0.5">&gt; {member.role}</p>
                                             </div>
                                         </div>
 
                                         <div className={`flex items-center gap-2 ${canEdit ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                                            <button 
+                                            <button
                                                 onClick={() => {
                                                     setEditingMember(member);
                                                     setIsAdding(false);
                                                 }}
-                                                className="p-2.5 rounded-xl bg-slate-800 text-slate-400 hover:text-white hover:bg-slate-700 transition-all"
-                                                title="Edit Profile"
+                                                className="p-2 rounded-lg bg-[#21262d] text-[#8b949e] hover:text-[#e6edf3] hover:bg-[#30363d] transition-all"
+                                                title="Editar perfil"
                                             >
                                                 <Edit2 className="w-4 h-4" />
                                             </button>
                                             {isAdmin && (
-                                                <button 
+                                                <button
                                                     onClick={() => handleDelete(member.id)}
-                                                    className="p-2.5 rounded-xl bg-slate-800 text-red-400 hover:text-white hover:bg-red-500 transition-all"
-                                                    title="Remove Member"
+                                                    className="p-2 rounded-lg bg-[#21262d] text-[#8b949e] hover:text-[#f85149] hover:bg-[#f85149]/10 transition-all"
+                                                    title="Eliminar miembro"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
@@ -384,9 +381,9 @@ export default function AdminPage() {
                             })}
 
                             {visibleMembers.length === 0 && !loading && (
-                                <div className="p-20 border-2 border-dashed border-slate-800 rounded-[40px] text-center">
-                                    <p className="text-slate-500 font-medium italic">
-                                        {isAdmin ? 'The organization is currently empty.' : 'Your profile was not found. Make sure your email is registered.'}
+                                <div className="p-16 border border-dashed border-[#30363d] rounded-xl text-center">
+                                    <p className="text-sm font-mono text-[#8b949e] italic">
+                                        {isAdmin ? '// la organización está vacía.' : '// tu perfil no fue encontrado. Asegúrate de que tu correo esté registrado.'}
                                     </p>
                                 </div>
                             )}
@@ -397,19 +394,21 @@ export default function AdminPage() {
                     <div className="hidden lg:block lg:col-span-1">
                         <AnimatePresence mode="wait">
                             {editingMember ? (
-                                <motion.div 
+                                <motion.div
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
-                                    className="sticky top-12 p-8 rounded-[40px] bg-slate-900 border-2 border-slate-800 shadow-2xl"
+                                    className="sticky top-12 p-6 rounded-xl bg-[#161b22] border border-[#30363d] shadow-2xl"
                                 >
-                                    <div className="flex justify-between items-center mb-10">
-                                        <h2 className="text-xl font-black text-white">{isAdding ? 'New Talent' : 'Edit Member'}</h2>
-                                        <button 
+                                    <div className="flex justify-between items-center mb-8">
+                                        <h2 className="text-lg font-bold text-[#e6edf3]">
+                                            {isAdding ? 'Nuevo Miembro' : 'Editar Miembro'}
+                                        </h2>
+                                        <button
                                             onClick={() => { setEditingMember(null); setIsAdding(false); }}
-                                            className="text-slate-500 hover:text-white"
+                                            className="text-[#8b949e] hover:text-[#e6edf3] transition-colors"
                                         >
-                                            <X className="w-6 h-6" />
+                                            <X className="w-5 h-5" />
                                         </button>
                                     </div>
                                     <EditFormFields
@@ -423,12 +422,12 @@ export default function AdminPage() {
                                     />
                                 </motion.div>
                             ) : (
-                                <div className="sticky top-12 p-12 border-2 border-dashed border-slate-800 rounded-[40px] text-center space-y-4">
-                                    <div className="w-16 h-16 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-2">
-                                        <Edit2 className="w-6 h-6 text-slate-700" />
+                                <div className="sticky top-12 p-10 border border-dashed border-[#30363d] rounded-xl text-center space-y-3">
+                                    <div className="w-12 h-12 rounded-lg bg-[#161b22] border border-[#30363d] flex items-center justify-center mx-auto">
+                                        <Edit2 className="w-5 h-5 text-[#30363d]" />
                                     </div>
-                                    <p className="text-slate-600 font-bold uppercase tracking-widest text-xs">Editor Console</p>
-                                    <p className="text-slate-500 text-sm">Select a member to edit their profile or create a new entry.</p>
+                                    <p className="text-[11px] font-mono text-[#30363d] uppercase tracking-widest">// editor</p>
+                                    <p className="text-sm text-[#8b949e]">Selecciona un miembro para editar o crea uno nuevo.</p>
                                 </div>
                             )}
                         </AnimatePresence>
@@ -436,31 +435,30 @@ export default function AdminPage() {
                 </div>
             </div>
 
-            {/* Edit/Add Form – Mobile bottom-sheet modal */}
+            {/* Edit/Add Form – Mobile bottom-sheet */}
             <AnimatePresence>
                 {editingMember && (
                     <motion.div
-                        className="lg:hidden fixed inset-0 z-50 flex items-end bg-slate-950/70 backdrop-blur-sm"
+                        className="lg:hidden fixed inset-0 z-50 flex items-end bg-[#0d1117]/80 backdrop-blur-sm"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={() => { setEditingMember(null); setIsAdding(false); }}
                     >
                         <motion.div
-                            className="w-full bg-slate-900 rounded-t-[32px] px-6 pt-4 pb-10 max-h-[92dvh] overflow-y-auto"
+                            className="w-full bg-[#161b22] border-t border-[#30363d] rounded-t-2xl px-6 pt-4 pb-10 max-h-[92dvh] overflow-y-auto"
                             initial={{ y: '100%' }}
                             animate={{ y: 0 }}
                             exit={{ y: '100%' }}
                             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
                             onClick={e => e.stopPropagation()}
                         >
-                            {/* drag handle */}
-                            <div className="w-10 h-1 rounded-full bg-slate-700 mx-auto mb-6" />
+                            <div className="w-8 h-1 rounded-full bg-[#30363d] mx-auto mb-6" />
                             <div className="flex justify-between items-center mb-8">
-                                <h2 className="text-xl font-black text-white">{isAdding ? 'New Talent' : 'Edit Profile'}</h2>
+                                <h2 className="text-xl font-bold text-[#e6edf3]">{isAdding ? 'Nuevo Miembro' : 'Editar Perfil'}</h2>
                                 <button
                                     onClick={() => { setEditingMember(null); setIsAdding(false); }}
-                                    className="text-slate-500 hover:text-white"
+                                    className="text-[#8b949e] hover:text-[#e6edf3]"
                                 >
                                     <X className="w-6 h-6" />
                                 </button>
@@ -493,133 +491,89 @@ interface EditFormFieldsProps {
 }
 
 function EditFormFields({ editingMember, setEditingMember, isAdmin, members, uploading, handlePhotoUpload, handleSave }: EditFormFieldsProps) {
+    const inputClass = "w-full px-4 py-3 rounded-lg bg-[#21262d] border border-[#30363d] text-[#e6edf3] text-sm focus:outline-none focus:ring-1 focus:ring-cyan-400/50 focus:border-cyan-400/50 transition-all placeholder:text-[#8b949e]";
+    const labelClass = "text-[10px] font-mono uppercase tracking-widest text-[#8b949e] ml-0.5";
+
     return (
-        <form onSubmit={handleSave} className="space-y-8">
-            <div className="space-y-6">
-                {/* Photo Upload */}
-                <div className="flex flex-col items-center gap-4 py-4 border-2 border-dashed border-slate-800 rounded-3xl bg-slate-900/50">
-                    <div className="relative w-24 h-24 rounded-3xl bg-slate-800 border-2 border-slate-700 flex items-center justify-center overflow-hidden shadow-lg">
-                        {editingMember.photo_url ? (
-                            <img src={editingMember.photo_url} className="w-full h-full object-cover" />
-                        ) : (
-                            <Camera className="w-10 h-10 text-slate-600" />
-                        )}
-                        {uploading && (
-                            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
-                                <Loader2 className="w-6 h-6 text-blue-500 animate-spin" />
-                            </div>
-                        )}
-                    </div>
-                    <label className="cursor-pointer group">
-                        <span className="px-4 py-2 rounded-xl bg-slate-800 text-[10px] uppercase font-black tracking-widest text-slate-400 group-hover:bg-slate-700 group-hover:text-white transition-all">
-                            {uploading ? 'Uploading...' : 'Upload Photo'}
-                        </span>
-                        <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
-                    </label>
+        <form onSubmit={handleSave} className="space-y-6">
+            {/* Photo Upload */}
+            <div className="flex flex-col items-center gap-3 py-5 border border-dashed border-[#30363d] rounded-xl bg-[#21262d]/30">
+                <div className="relative w-20 h-20 rounded-xl bg-[#21262d] border border-[#30363d] flex items-center justify-center overflow-hidden">
+                    {editingMember.photo_url ? (
+                        <img src={editingMember.photo_url} className="w-full h-full object-cover" />
+                    ) : (
+                        <Camera className="w-8 h-8 text-[#30363d]" />
+                    )}
+                    {uploading && (
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center">
+                            <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
+                        </div>
+                    )}
                 </div>
+                <label className="cursor-pointer">
+                    <span className="px-3 py-1.5 rounded-md bg-[#21262d] border border-[#30363d] text-[10px] font-mono uppercase tracking-widest text-[#8b949e] hover:border-cyan-400/40 hover:text-cyan-400 transition-all">
+                        {uploading ? 'subiendo...' : 'subir foto'}
+                    </span>
+                    <input type="file" className="hidden" accept="image/*" onChange={handlePhotoUpload} disabled={uploading} />
+                </label>
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Full Name</label>
-                    <input
-                        required
-                        className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                        value={editingMember.name || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })}
-                        placeholder="e.g. Marcus Shaco"
-                    />
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Nombre Completo</label>
+                <input required className={inputClass} value={editingMember.name || ''} onChange={(e) => setEditingMember({ ...editingMember, name: e.target.value })} placeholder="ej. Marcus Shaco" />
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Work Email</label>
-                    <input
-                        required
-                        type="email"
-                        disabled={!isAdmin}
-                        className={`w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all ${!isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
-                        value={editingMember.email || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, email: e.target.value })}
-                        placeholder="e.g. marcus@shaco.com"
-                    />
-                    {!isAdmin && <p className="text-[9px] text-slate-500 italic ml-1">* Email is managed by System Admin</p>}
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Correo</label>
+                <input required type="email" disabled={!isAdmin} className={`${inputClass} ${!isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`} value={editingMember.email || ''} onChange={(e) => setEditingMember({ ...editingMember, email: e.target.value })} placeholder="ej. marcus@shaco.com" />
+                {!isAdmin && <p className="text-[9px] font-mono text-[#8b949e] italic ml-0.5">// el correo lo gestiona el admin</p>}
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Current Role</label>
-                    <input
-                        required
-                        className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                        value={editingMember.role || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })}
-                        placeholder="e.g. Lead Designer"
-                    />
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Rol</label>
+                <input required className={inputClass} value={editingMember.role || ''} onChange={(e) => setEditingMember({ ...editingMember, role: e.target.value })} placeholder="ej. Diseñador Principal" />
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Manager</label>
-                    <div className="relative">
-                        <select
-                            disabled={!isAdmin}
-                            className={`w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white appearance-none focus:ring-2 focus:ring-blue-500 transition-all ${!isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            value={editingMember.manager_id || ''}
-                            onChange={(e) => setEditingMember({ ...editingMember, manager_id: e.target.value || null })}
-                        >
-                            <option value="">No Manager (Root)</option>
-                            {members.filter(m => m.id !== editingMember.id).map(m => (
-                                <option key={m.id} value={m.id}>{m.name}</option>
-                            ))}
-                        </select>
-                        <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
-                    </div>
-                    {!isAdmin && <p className="text-[9px] text-slate-500 italic ml-1">* Hierarchy is managed by System Admin</p>}
+            <div className="space-y-1.5">
+                <label className={labelClass}>Superior</label>
+                <div className="relative">
+                    <select disabled={!isAdmin} className={`${inputClass} appearance-none ${!isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`} value={editingMember.manager_id || ''} onChange={(e) => setEditingMember({ ...editingMember, manager_id: e.target.value || null })}>
+                        <option value="">Sin Superior (Raíz)</option>
+                        {members.filter(m => m.id !== editingMember.id).map(m => (
+                            <option key={m.id} value={m.id}>{m.name}</option>
+                        ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8b949e] pointer-events-none" />
                 </div>
+                {!isAdmin && <p className="text-[9px] font-mono text-[#8b949e] italic ml-0.5">// la jerarquía la gestiona el admin</p>}
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Description (Markdown)</label>
-                    <textarea
-                        className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all min-h-[80px] resize-none"
-                        value={editingMember.description || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, description: e.target.value })}
-                        placeholder="e.g. **Bio** or *highlights* in Markdown"
-                    />
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Descripción (Markdown)</label>
+                <textarea className={`${inputClass} min-h-[80px] resize-none`} value={editingMember.description || ''} onChange={(e) => setEditingMember({ ...editingMember, description: e.target.value })} placeholder="ej. **Bio** o *destacados* en Markdown" />
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Birthday</label>
-                    <input
-                        className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                        value={editingMember.birthday || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, birthday: e.target.value })}
-                        placeholder="e.g. October 24th"
-                    />
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Cumpleaños</label>
+                <input className={inputClass} value={editingMember.birthday || ''} onChange={(e) => setEditingMember({ ...editingMember, birthday: e.target.value })} placeholder="ej. 24 de octubre" />
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Education (Markdown)</label>
-                    <input
-                        className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all"
-                        value={editingMember.education || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, education: e.target.value })}
-                        placeholder="e.g. MS in Computer Science"
-                    />
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Educación (Markdown)</label>
+                <input className={inputClass} value={editingMember.education || ''} onChange={(e) => setEditingMember({ ...editingMember, education: e.target.value })} placeholder="ej. Maestría en Ciencias de la Computación" />
+            </div>
 
-                <div className="space-y-2">
-                    <label className="text-[10px] uppercase font-black tracking-widest text-slate-500 ml-1">Work History (Markdown)</label>
-                    <textarea
-                        className="w-full px-5 py-4 rounded-2xl bg-slate-800 border-none text-white focus:ring-2 focus:ring-blue-500 transition-all min-h-[100px] resize-none"
-                        value={editingMember.work_history || ''}
-                        onChange={(e) => setEditingMember({ ...editingMember, work_history: e.target.value })}
-                        placeholder="e.g. 5 years at Google, 2 years at Netflix"
-                    />
-                </div>
+            <div className="space-y-1.5">
+                <label className={labelClass}>Historial Laboral (Markdown)</label>
+                <textarea className={`${inputClass} min-h-[90px] resize-none`} value={editingMember.work_history || ''} onChange={(e) => setEditingMember({ ...editingMember, work_history: e.target.value })} placeholder="ej. 5 años en Google, 2 años en Netflix" />
             </div>
 
             <button
                 type="submit"
-                className="w-full py-5 rounded-3xl bg-blue-600 hover:bg-blue-500 text-white font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-500/20 transition-all flex items-center justify-center gap-3"
+                className="w-full py-3 rounded-lg bg-cyan-500/10 border border-cyan-400/30 text-cyan-400 font-semibold text-sm hover:bg-cyan-500/20 hover:border-cyan-400/60 transition-all flex items-center justify-center gap-2 glow-cyan-sm"
             >
-                <Save className="w-5 h-5" />
-                <span>Save Record</span>
+                <Save className="w-4 h-4" />
+                <span>Guardar</span>
             </button>
         </form>
     );

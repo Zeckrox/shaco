@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { LogIn, ShieldAlert } from 'lucide-react';
+import { LogIn, Terminal } from 'lucide-react';
 
 export default function LoginPage() {
     const { user, loginWithGoogle, loading } = useAuth();
@@ -19,34 +19,57 @@ export default function LoginPage() {
     if (loading) return null;
 
     return (
-        <main className="min-h-screen flex items-center justify-center bg-slate-950 p-6">
-            <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_50%_50%,rgba(59,130,246,0.05),transparent_70%)] pointer-events-none" />
-            
-            <motion.div 
-                initial={{ opacity: 0, y: 20 }}
+        <main className="min-h-screen flex items-center justify-center bg-[#0d1117] p-6">
+            {/* Subtle radial glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(34,211,238,0.04),transparent_60%)] pointer-events-none" />
+
+            <motion.div
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-md p-10 rounded-[40px] bg-slate-900 border border-slate-800 shadow-2xl text-center space-y-8"
+                transition={{ duration: 0.5 }}
+                className="w-full max-w-sm"
             >
-                <div className="w-20 h-20 rounded-3xl bg-blue-600/10 border border-blue-500/20 flex items-center justify-center mx-auto mb-2">
-                    <ShieldAlert className="w-10 h-10 text-blue-500" />
+                {/* Terminal header bar */}
+                <div className="flex items-center gap-2 px-4 py-3 bg-[#161b22] border border-[#30363d] rounded-t-xl border-b-0">
+                    <div className="flex gap-1.5">
+                        <span className="w-3 h-3 rounded-full bg-[#f85149]/60" />
+                        <span className="w-3 h-3 rounded-full bg-[#e3b341]/60" />
+                        <span className="w-3 h-3 rounded-full bg-[#3fb950]/60" />
+                    </div>
+                    <span className="text-xs font-mono text-[#8b949e] ml-2">shaco — auth.sh</span>
                 </div>
 
-                <div className="space-y-2">
-                    <h1 className="text-3xl font-black text-white">Restricted Access</h1>
-                    <p className="text-slate-500 font-medium">Please sign in to manage the organizational structure of Shaco Core.</p>
+                {/* Card body */}
+                <div className="p-8 bg-[#161b22] border border-[#30363d] rounded-b-xl rounded-tr-xl space-y-8">
+                    {/* Icon */}
+                    <div className="flex items-center justify-center">
+                        <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-400/20 glow-cyan">
+                            <Terminal className="w-8 h-8 text-cyan-400" />
+                        </div>
+                    </div>
+
+                    {/* Text */}
+                    <div className="space-y-2 text-center">
+                        <h1 className="text-2xl font-bold text-[#e6edf3]">Acceso Restringido</h1>
+                        <p className="text-sm text-[#8b949e] leading-relaxed">
+                            Inicia sesión para gestionar la estructura de <span className="text-cyan-400 font-semibold">Shaco Core</span>.
+                        </p>
+                    </div>
+
+                    {/* Google Sign In */}
+                    <button
+                        onClick={loginWithGoogle}
+                        className="w-full py-3 rounded-lg bg-[#e6edf3] text-[#0d1117] font-bold text-sm flex items-center justify-center gap-3 hover:bg-white transition-all shadow-lg"
+                    >
+                        <LogIn className="w-4 h-4" />
+                        <span>Ingresar con Google</span>
+                    </button>
+
+                    {/* Footer hint */}
+                    <p className="text-center text-[10px] font-mono text-[#30363d] tracking-widest uppercase">
+                        // solo personal autorizado
+                    </p>
                 </div>
-
-                <button 
-                    onClick={loginWithGoogle}
-                    className="w-full py-5 rounded-3xl bg-white text-slate-950 font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3 hover:bg-slate-200 transition-all shadow-xl shadow-white/5"
-                >
-                    <LogIn className="w-5 h-5" />
-                    <span>Sign in with Google</span>
-                </button>
-
-                <p className="text-xs text-slate-600 font-bold uppercase tracking-widest">
-                    Authorized Personnel Only
-                </p>
             </motion.div>
         </main>
     );
